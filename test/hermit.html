@@ -1,0 +1,124 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#157878">
+  <title>&#x65C5;&#x884C;</title>
+  <link href="/scss/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Site Header -->
+  
+<header class="site-header" role="banner">
+    <div class="wrapper">
+        <!-- 主站链接 -->
+            <a class="site-title" href=''></a>
+
+    <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+            <span class="menu-icon">
+                <svg viewBox="0 0 18 15" width="18px" height="15px">
+                    <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z" />
+                    <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z" />
+                    <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z" />
+                </svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+        </div>
+    </nav>
+    </div>
+</header>
+
+
+  <section class="page-header" style="padding-top: 80px; padding-bottom: 40px; background: linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.0)), url('/assets/img/home-header.jpg') center center repeat;">
+    <h1 class="project-name">&#x65C5;&#x884C;</h1>
+    <h2 class="project-tagline">&#x8C28;&#x9632;&#x8FF7;&#x8DEF;</h2>
+  </section>
+
+  <section class="main-content">
+    <h2 id="section">测试</h2>
+
+
+    <div id="test" />
+
+    <!-- Remote Content -->
+    <!-- Site Footer -->
+    <footer class="site-footer">
+  <p class="copyright text-muted m-0">Copyright © 2020 - xkyii</p>
+</footer>
+
+  </section>
+
+  <script>
+    var testText = `
+          <div>
+            <p>Test</p>
+            <img class="private-image" data-src="https://api.github.com/repos/xkdip/image2/contents/2020/11/test.png?ref=main" />
+          </div>`
+
+    var init = {
+      headers: {
+        'Authorization': 'token _token_',
+        'Accept': 'application/vnd.github.v3.raw',
+      },
+    };
+
+    // 'https://api.github.com/repos/xkdip/hermit/contents/docs/test/index.html?ref=develop'
+    function handleContent(url) {
+      fetch(url, init)
+        .then(rsp => rsp.text())
+        .then(text => {
+          console.log('load content...');
+          document.getElementById("test").innerHTML = testText;
+          handleImgs();
+        })
+        .catch(() => {
+          throw new Error('Txt load FAILED.');
+        });
+    }
+
+    function handleImgs() {
+      var imgs = document.querySelectorAll('.private-image');
+      Array.from(imgs).forEach(el => {
+        if (!el.src) {
+          var source = el.dataset.src;
+          fetch(source, init)
+            .then(rsp => rsp.blob())
+            .then(blob => {
+              console.log('load img...');
+              el.src = URL.createObjectURL(blob);
+            })
+            .catch(() => {
+              throw new Error('Image load FAILED.');
+            });
+        }
+      })
+    }
+
+    function getQueryString(name) {
+      let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+      let r = window.location.search.substr(1).match(reg);
+      if (r != null) {
+        return decodeURIComponent(r[2]);
+      };
+      return null;
+    }
+
+    var url = getQueryString("url");
+    if (url) {
+      handleContent(url);
+    }
+
+  </script>
+</body>
+
+</html>
