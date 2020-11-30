@@ -33,6 +33,7 @@
         </label>
 
         <div class="trigger">
+                <a class="page-link" href='/test/hermit?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fxkdip%2Fhermit%2Fcontents%2Fposts.html%3Fref%3Dmain'>&#x76EE;&#x5F55;</a>
         </div>
     </nav>
     </div>
@@ -41,11 +42,14 @@
 
   <section class="page-header" style="padding-top: 80px; padding-bottom: 40px; background: linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.0)), url('/assets/img/home-header.jpg') center center repeat;">
     <h1 class="project-name">&#x65C5;&#x884C;</h1>
-    <h2 class="project-tagline">&#x8C28;&#x9632;&#x8FF7;&#x8DEF;</h2>
+    <h2 class="project-tagline">
+      <input type="button" value="&#x8C28;&#x9632;&#x8FF7;&#x8DEF;" onclick="delToken()"/>
+    </h2>
+
   </section>
 
   <section class="main-content">
-    <h2 id="section">测试</h2>
+    <h2 id="section">不要回答</h2>
 
 
     <div id="test" />
@@ -59,26 +63,26 @@
   </section>
 
   <script>
-    var testText = `
-          <div>
-            <p>Test</p>
-            <img class="private-image" data-src="https://api.github.com/repos/xkdip/image2/contents/2020/11/test.png?ref=main" />
-          </div>`
+    var tokenKey = "gh_token";
 
-    var init = {
-      headers: {
-        'Authorization': 'token _token_',
-        'Accept': 'application/vnd.github.v3.raw',
-      },
-    };
+    function getInit() {
+      if (checkToken()) {
+        return {
+          headers: {
+            'Authorization': 'token ' + getCookie(tokenKey),
+            'Accept': 'application/vnd.github.v3.raw',
+          }
+        };
+      }
+    }
 
     // 'https://api.github.com/repos/xkdip/hermit/contents/docs/test/index.html?ref=develop'
     function handleContent(url) {
-      fetch(url, init)
+      fetch(url, getInit())
         .then(rsp => rsp.text())
         .then(text => {
           console.log('load content...');
-          document.getElementById("test").innerHTML = testText;
+          document.getElementById("test").innerHTML = text;
           handleImgs();
         })
         .catch(() => {
@@ -91,7 +95,7 @@
       Array.from(imgs).forEach(el => {
         if (!el.src) {
           var source = el.dataset.src;
-          fetch(source, init)
+          fetch(source, getInit())
             .then(rsp => rsp.blob())
             .then(blob => {
               console.log('load img...');
@@ -112,10 +116,60 @@
       };
       return null;
     }
+    function getCookie(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+    }
 
-    var url = getQueryString("url");
-    if (url) {
-      handleContent(url);
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function delCookie(name) {
+      var cval=getCookie(name);
+      if(cval!=null) {
+        setCookie(name, cval, -1);
+      }
+    }
+
+    function checkToken() {
+      var token = getCookie(tokenKey);
+      if (token != "") {
+        return true;
+      }
+      else {
+        token = prompt("password: ", "");
+        if (token != null && token != "") {
+          setCookie(tokenKey, token);
+          return true;
+        }
+        return false;
+      }
+    }
+
+    function delToken() {
+      delCookie(tokenKey);
+    }
+
+    if (checkToken()) {
+      var url = getQueryString("url");
+      if (url) {
+        handleContent(url);
+      }
     }
 
   </script>
